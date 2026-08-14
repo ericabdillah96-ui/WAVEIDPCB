@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>DAFTAR PO PCB WAVEID</title>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.0/dist/supabase.min.js"></script>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Arial,sans-serif}
+    body{background:#0f1424;color:#fff;padding:20px}
+    .wrap{max-width:450px;margin:0 auto}
+    h1{text-align:center;color:#c061ff;margin-bottom:20px}
+    .card{background:#151b30;padding:20px;border-radius:14px;border:1px solid #9d4edd}
+    label{display:block;margin:12px 0 5px;color:#cbd5e1}
+    input,textarea{width:100%;padding:10px;background:#0f1424;border:1px solid #3b2b63;border-radius:8px;color:#fff;font-size:15px}
+    textarea{min-height:80px}
+    .qty{display:flex;gap:10px;margin:15px 0}
+    .btn-qty{flex:1;padding:12px;border:2px solid #3b2b63;border-radius:8px;background:#0f1424;color:#fff;cursor:pointer;font-size:16px}
+    .btn-qty.active{border-color:#c061ff;background:#7b2ffd}
+    .btn{width:100%;padding:13px;margin-top:15px;background:linear-gradient(135deg,#7b2ffd,#c061ff);border:none;border-radius:8px;color:#fff;font-size:16px;font-weight:bold;cursor:pointer}
+    .btn:disabled{opacity:0.5}
+    .pesan{margin-top:15px;text-align:center;font-weight:bold;min-height:40px}
+    .po-nomor{color:#c061ff;font-size:22px;font-weight:bold;margin:15px 0;padding:10px;background:rgba(123,47,253,0.1);border-radius:8px;text-align:center}
+    .admin{text-align:center;margin-top:20px;padding-top:20px;border-top:1px solid #3b2b63}
+    .admin button{padding:10px 20px;background:transparent;border:1px solid #9d4edd;color:#9d4edd;border-radius:8px;cursor:pointer}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h1>📋 DAFTAR PO PCB WAVEID</h1>
+  <div class="card">
+    <label>Nama Penerima</label>
+    <input type="text" id="nama" placeholder="Masukkan nama">
+    <label>Nomor HP</label>
+    <input type="text" id="nohp" placeholder="08xxxxxxxxxx">
+    <label>Alamat Lengkap</label>
+    <textarea id="alamat" placeholder="Masukkan alamat lengkap"></textarea>
+    <label>Quantity</label>
+    <div class="qty">
+      <button class="btn-qty active" id="b1">1 PCS</button>
+      <button class="btn-qty" id="b2">2 PCS</button>
+    </div>
+    <button id="kirim" class="btn">✅ KIRIM DATA</button>
+    <div id="pesan" class="pesan"></div>
+    <div id="hasilPO" class="po-nomor" style="display:none"></div>
+  </div>
+  <div class="admin">
+    <button onclick="window.open('admin.html','_blank')">🔧 BUKA PANEL ADMIN</button>
+  </div>
+</div>
+
+<script>
+const SUPABASE_URL = "https://flevjnzsaliyrsynmghve.supabase.co";
+const SUPABASE_KEY = "sb_publishable_kzGf_4gy6yoRZmEAjwNGGA_slWQQcs5";
+const sb = supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
+
+let qty = 1;
+document.getElementById("b1").onclick = ()=>{qty=1;document.getElementById("b1").classList.add("active");document.getElementById("b2").classList.remove("active")};
+document.getElementById("b2").onclick = ()=>{qty=2;document.getElementById("b2").classList.add("active");document.getElementById("b1").classList.remove("active")};
+
+function buatNoPO(){
+  const t = new Date();
+  return "PO-"+String(t.getMonth()+1).padStart(2,'0')+String(t.getDate()).padStart(2,'0')+String(t.getFullYear()).slice(-2)+"-";
+}
+
+document.getElementById("kirim").onclick = async function(){
+  const btn = this;
+  const nama = document.getElementById("nama").value.trim();
+  const hp = document.getElementById("nohp").value.trim().replace(/\D/g,'');
+  const alamat = document.getElementById("alamat").value.trim();
+  const pesan = document.getElementById("pesan");
+  const hasilPO = document.getElementById("hasilPO");
+
+  if(!nama||!hp||!alamat){pesan.textContent="⚠️ Semua kolom wajib diisi!";pesan.style.color="#ff6b6b";return}
+
+  btn.disabled = true;
+  btn.textContent = "⏳ MENYIMPAN...";
+  pesan.textContent = "Sedang menghubungkan ke server...";
+  pesan.style.color = "#ffd966";
+  hasilPO.style.display = "none";
+
+  try {
+    const prefix = buatNoPO();
+    const {data:listPO} = await sb.from("pesanan").select("nomor_po").like("nomor_po", prefix+"%").order("nomor_po",{ascending:false});
+    let urut = 1;
+    if(listPO && listPO.length>0){
+      const angka = parseInt(listPO[listPO.length-1].nomor_po.split("-")[2])||0;
+      urut = angka+1;
+    }
+    const noPO = prefix + String(urut).padStart(2,'0');
+
+    const {error} = await sb.from("pesanan").insert([{
+      nomor_po: noPO, nama: nama, no_hp: hp, alamat: alamat, qty: qty
+    }]);
+
+    if(error) throw error;
+
+    pesan.textContent = "✅ BERHASIL TERSIMPAN!";
+    pesan.style.color = "#28a745";
+    hasilPO.textContent = "Nomor PO: " + noPO;
+    hasilPO.style.display = "block";
+    document.getElementById("nama").value = "";
+    document.getElementById("nohp").value = "";
+    document.getElementById("alamat").value = "";
+
+  } catch(err) {
+    pesan.textContent = "❌ ERROR: " + err.message;
+    pesan.style.color = "#ff6b6b";
+  }
+
+  btn.disabled = false;
+  btn.textContent = "✅ KIRIM DATA";
+};
+</script>
+</body>
+</html>
