@@ -1,259 +1,86 @@
 <!DOCTYPE html>
 <html lang="id">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>DAFTAR PO PCB WAVEID</title>
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    body {
-      background: #0f1424;
-      color: #ffffff;
-      font-family: Arial, sans-serif;
-      padding: 20px;
-    }
-    .container {
-      max-width: 450px;
-      margin: 0 auto;
-    }
-    h1 {
-      text-align: center;
-      color: #c061ff;
-      margin-bottom: 20px;
-      font-size: 20px;
-    }
-    .card {
-      background: #151b30;
-      padding: 25px;
-      border-radius: 14px;
-      border: 1px solid #9d4edd;
-    }
-    label {
-      display: block;
-      margin: 15px 0 6px;
-      color: #cbd5e1;
-      font-size: 14px;
-      font-weight: bold;
-    }
-    input, textarea {
-      width: 100%;
-      padding: 12px;
-      background: #0f1424;
-      border: 1px solid #3b2b63;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 15px;
-    }
-    textarea {
-      min-height: 90px;
-      resize: none;
-    }
-    .pilihan-jumlah {
-      display: flex;
-      gap: 10px;
-      margin-top: 10px;
-    }
-    .btn-jumlah {
-      flex: 1;
-      padding: 12px;
-      background: #0f1424;
-      border: 2px solid #3b2b63;
-      color: #fff;
-      border-radius: 8px;
-      font-size: 16px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .btn-jumlah.terpilih {
-      border-color: #c061ff;
-      background: #7b2ffd;
-    }
-    .btn-kirim {
-      width: 100%;
-      padding: 15px;
-      margin-top: 25px;
-      background: linear-gradient(135deg, #7b2ffd, #c061ff);
-      border: none;
-      border-radius: 8px;
-      color: #fff;
-      font-size: 17px;
-      font-weight: bold;
-      cursor: pointer;
-    }
-    .btn-kirim:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    .pesan {
-      margin-top: 15px;
-      text-align: center;
-      font-weight: bold;
-      min-height: 40px;
-      font-size: 14px;
-    }
-    .nomor-po {
-      margin-top: 15px;
-      padding: 15px;
-      background: rgba(123, 47, 253, 0.1);
-      border-radius: 8px;
-      text-align: center;
-      color: #c061ff;
-      font-size: 20px;
-      font-weight: bold;
-      display: none;
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir PO PCB</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; font-family: 'Segoe UI', Roboto, sans-serif; }
+        body { background: linear-gradient(135deg, #2c3e50, #3498db); min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px; }
+        .container { background: #fff; border-radius: 16px; box-shadow: 0 10px 40px rgba(0,0,0,0.2); width: 100%; max-width: 480px; padding: 30px; }
+        h2 { text-align: center; color: #2c3e50; margin-bottom: 25px; }
+        .form-group { margin-bottom: 18px; }
+        label { display: block; margin-bottom: 6px; color: #34495e; font-weight: 500; }
+        input, textarea { width: 100%; padding: 12px 14px; border: 2px solid #e0e0e0; border-radius: 8px; font-size: 15px; }
+        input:focus, textarea:focus { outline: none; border-color: #3498db; }
+        button { width: 100%; padding: 14px; background: linear-gradient(135deg, #27ae60, #2ecc71); color: #fff; border: none; border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; }
+        button:disabled { background: #bdc3c7; cursor: not-allowed; }
+        .alert { margin-top: 15px; padding: 12px; border-radius: 8px; display: none; }
+        .sukses { background: #d4edda; color: #155724; display: block; }
+        .error { background: #f8d7da; color: #721c24; display: block; }
+        .no-po { font-weight: bold; font-size: 16px; margin-top: 5px; }
+    </style>
 </head>
 <body>
-
 <div class="container">
-  <h1>📋 DAFTAR PO PCB WAVEID</h1>
-  <div class="card">
-    <label>Nama Penerima</label>
-    <input type="text" id="inputNama" placeholder="Masukkan nama lengkap">
-
-    <label>Nomor HP</label>
-    <input type="text" id="inputHP" placeholder="Contoh: 08123456789">
-
-    <label>Alamat Lengkap</label>
-    <textarea id="inputAlamat" placeholder="Masukkan alamat lengkap"></textarea>
-
-    <label>Quantity (Maksimal 2)</label>
-    <div class="pilihan-jumlah">
-      <button type="button" class="btn-jumlah terpilih" id="btn1">1 PCS</button>
-      <button type="button" class="btn-jumlah" id="btn2">2 PCS</button>
-    </div>
-
-    <button type="button" class="btn-kirim" id="tombolKirim">✅ KIRIM DATA</button>
-
-    <div class="pesan" id="pesanInfo"></div>
-    <div class="nomor-po" id="tampilPO"></div>
-  </div>
+    <h2>📋 Formulir PO PCB</h2>
+    <form id="formPO">
+        <div class="form-group">
+            <label>Nama Pemesan</label>
+            <input type="text" name="nama" required placeholder="Masukkan nama lengkap...">
+        </div>
+        <div class="form-group">
+            <label>Nomor HP</label>
+            <input type="tel" name="hp" required placeholder="Contoh: 081234567890">
+        </div>
+        <div class="form-group">
+            <label>Alamat Lengkap</label>
+            <textarea name="alamat" rows="3" required placeholder="Masukkan alamat pengiriman..."></textarea>
+        </div>
+        <div class="form-group">
+            <label>Jumlah PCB</label>
+            <input type="number" name="jumlah" min="1" required placeholder="Contoh: 50">
+        </div>
+        <button type="submit" id="btnKirim">✅ Kirim Pesanan</button>
+    </form>
+    <div id="pesan" class="alert"></div>
 </div>
 
 <script>
-// === KONEKSI SUPABASE ===
-const SUPABASE_URL = "https://flevjnzsaliyrsynmghve.supabase.co";
-const SUPABASE_KEY = "sb_publishable_kzGf_4gy6yoRZmEAjwNGGA_slWQQcs5";
-const { createClient } = supabase;
-const supabaseClient = createClient(SUPABASE_URL, SUPABASE_KEY);
+// ✅ URL SUDAH DIISI OTOMATIS
+const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbxpioUOarNseVKGqW_-baj0W4rji0M0VtNDYDHU0rhJ83us2fvQmrQwN8kq_xKtqQE/exec";
 
-let jumlahPesanan = 1;
+const form = document.getElementById("formPO");
+const btnKirim = document.getElementById("btnKirim");
+const pesan = document.getElementById("pesan");
 
-// PILIH JUMLAH 1 PCS
-document.getElementById("btn1").addEventListener("click", function() {
-  jumlahPesanan = 1;
-  this.classList.add("terpilih");
-  document.getElementById("btn2").classList.remove("terpilih");
-});
+form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    btnKirim.disabled = true;
+    btnKirim.textContent = "⏳ Mengirim...";
+    pesan.className = "alert";
 
-// PILIH JUMLAH 2 PCS
-document.getElementById("btn2").addEventListener("click", function() {
-  jumlahPesanan = 2;
-  this.classList.add("terpilih");
-  document.getElementById("btn1").classList.remove("terpilih");
-});
+    try {
+        const formData = new FormData(form);
+        const res = await fetch(URL_WEB_APP, { method: "POST", body: formData });
+        const hasil = await res.json();
 
-// BUAT NOMOR PO OTOMATIS
-function buatNomorPO() {
-  const sekarang = new Date();
-  const bulan = String(sekarang.getMonth() + 1).padStart(2, "0");
-  const tanggal = String(sekarang.getDate()).padStart(2, "0");
-  const tahun = String(sekarang.getFullYear()).slice(-2);
-  return "PO-" + bulan + tanggal + tahun + "-";
-}
-
-// === FUNGSI SIMPAN DATA ===
-async function simpanDataPesanan() {
-  const tombol = document.getElementById("tombolKirim");
-  const nama = document.getElementById("inputNama").value.trim();
-  const hp = document.getElementById("inputHP").value.trim().replace(/\D/g, "");
-  const alamat = document.getElementById("inputAlamat").value.trim();
-  const pesan = document.getElementById("pesanInfo");
-  const tampilPO = document.getElementById("tampilPO");
-
-  // VALIDASI ISI FORM
-  if (!nama) {
-    pesan.textContent = "⚠️ Nama wajib diisi!";
-    pesan.style.color = "#ff6b6b";
-    return;
-  }
-  if (!hp) {
-    pesan.textContent = "⚠️ Nomor HP wajib diisi!";
-    pesan.style.color = "#ff6b6b";
-    return;
-  }
-  if (!alamat) {
-    pesan.textContent = "⚠️ Alamat wajib diisi!";
-    pesan.style.color = "#ff6b6b";
-    return;
-  }
-
-  tombol.disabled = true;
-  tombol.textContent = "⏳ Sedang menyimpan...";
-  pesan.textContent = "";
-  tampilPO.style.display = "none";
-
-  try {
-    // BUAT NOMOR PO
-    const awalanPO = buatNomorPO();
-    const { data: daftarPO } = await supabaseClient
-      .from("pesanan")
-      .select("nomor_po")
-      .like("nomor_po", awalanPO + "%")
-      .order("nomor_po", { ascending: false });
-
-    let nomorUrut = 1;
-    if (daftarPO && daftarPO.length > 0) {
-      const angkaTerakhir = parseInt(daftarPO[daftarPO.length - 1].nomor_po.split("-")[2]) || 0;
-      nomorUrut = angkaTerakhir + 1;
+        if (hasil.status === "BERHASIL") {
+            pesan.className = "alert sukses";
+            pesan.innerHTML = "✅ Pesanan Tersimpan!<div class='no-po'>Nomor PO: " + hasil.no_po + "</div>";
+            form.reset();
+        } else {
+            pesan.className = "alert error";
+            pesan.textContent = "❌ Gagal dikirim!";
+        }
+    } catch (err) {
+        pesan.className = "alert error";
+        pesan.textContent = "❌ Error: " + err.message;
     }
-    const nomorPOlengkap = awalanPO + String(nomorUrut).padStart(2, "0");
 
-    // SIMPAN KE DATABASE
-    const { error } = await supabaseClient.from("pesanan").insert([
-      {
-        nomor_po: nomorPOlengkap,
-        nama: nama,
-        no_hp: hp,
-        alamat: alamat,
-        qty: jumlahPesanan
-      }
-    ]);
-
-    if (error) throw error;
-
-    // BERHASIL
-    pesan.textContent = "✅ BERHASIL TERSIMPAN!";
-    pesan.style.color = "#28a745";
-    tampilPO.textContent = "Nomor PO: " + nomorPOlengkap;
-    tampilPO.style.display = "block";
-
-    // KOSONGKAN FORM
-    document.getElementById("inputNama").value = "";
-    document.getElementById("inputHP").value = "";
-    document.getElementById("inputAlamat").value = "";
-
-  } catch (err) {
-    pesan.textContent = "❌ ERROR: " + err.message;
-    pesan.style.color = "#ff6b6b";
-  }
-
-  tombol.disabled = false;
-  tombol.textContent = "✅ KIRIM DATA";
-}
-
-// === PASANG TOMBOL KETIKA HALAMAN SUDAH SIAP ===
-document.addEventListener("DOMContentLoaded", function() {
-  document.getElementById("tombolKirim").addEventListener("click", simpanDataPesanan);
-  console.log("✅ HALAMAN SIAP! TOMBOL SUDAH TERHUBUNG!");
+    btnKirim.disabled = false;
+    btnKirim.textContent = "✅ Kirim Pesanan";
 });
 </script>
-
 </body>
 </html>
