@@ -86,6 +86,26 @@
             color: transparent;
         }
 
+        /* ✅ COUNTDOWN KUOTA */
+        .kuota-box {
+            margin-top: 12px;
+            padding: 10px 16px;
+            background: rgba(34, 211, 238, 0.08);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .kuota-teks {
+            font-size: 14px;
+            color: #a5f3fc;
+        }
+        .kuota-angka {
+            font-weight: 700;
+            font-size: 18px;
+            color: #22d3ee;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
         .form-card {
             background: var(--panel);
             border: 1px solid var(--accent);
@@ -338,6 +358,12 @@
     <div class="header">
         <h2>📋 <span>FORMULIR PO PCB</span></h2>
         <p>Isi data & pilih jumlah pesanan</p>
+        <!-- ✅ COUNTDOWN SISA KUOTA -->
+        <div class="kuota-box">
+            <span class="kuota-teks">Sisa kuota tersedia: </span>
+            <span class="kuota-angka" id="tampilKuota">--</span>
+            <span class="kuota-teks"> / 200 PCS</span>
+        </div>
     </div>
 
     <div class="form-card">
@@ -418,6 +444,18 @@ const popup = document.getElementById("popupBerhasil");
 const tampilPO = document.getElementById("tampilPO");
 const btnTutupPopup = document.getElementById("btnTutupPopup");
 const notifError = document.getElementById("notifError");
+const tampilKuota = document.getElementById("tampilKuota");
+
+// ✅ AMBIL & TAMPILKAN SISA KUOTA SAAT HALAMAN DIBUKA
+async function muatKuota() {
+    try {
+        const res = await fetch(URL_WEB_APP + "?kuota=cek");
+        const data = await res.json();
+        tampilKuota.textContent = data.sisa || "?";
+    } catch (err) {
+        tampilKuota.textContent = "200";
+    }
+}
 
 // 🔘 Pilih jumlah dengan tombol
 document.querySelectorAll('.qty-btn').forEach(btn => {
@@ -437,6 +475,7 @@ btnTutupPopup.addEventListener('click', function(){
     document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
     jumlahPilih.value = "1";
+    muatKuota(); // ✅ Refresh sisa kuota setelah tutup popup
 });
 
 // 📤 Kirim Pesanan
@@ -464,6 +503,10 @@ form.addEventListener("submit", async function(e) {
             document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
             document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
             jumlahPilih.value = "1";
+            // ✅ Refresh sisa kuota setelah berhasil pesan
+            if (hasil.sisa_kuota !== undefined) {
+                tampilKuota.textContent = hasil.sisa_kuota;
+            }
         } else {
             // ✅ TAMPIL PESAN ASLI DARI GS DI BAWAH ALAMAT
             const pesan = hasil.pesan || "❌ Gagal dikirim! Coba lagi.";
@@ -528,6 +571,9 @@ btnCek.addEventListener("click", async function() {
     btnCek.textContent = "🔍 Cek Sekarang";
     btnCek.disabled = false;
 });
+
+// ✅ MULAI AMBIL SISA KUOTA SAAT HALAMAN DIBUKA
+muatKuota();
 </script>
 
 </body>
