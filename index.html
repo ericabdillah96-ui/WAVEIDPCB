@@ -19,6 +19,7 @@
           --text-light: #94a3b8;
           --glow-ungu: rgba(157, 78, 221, 0.4);
           --shadow-lg: 0 8px 28px rgba(123, 47, 253, 0.2);
+          --error: #f87171;
         }
 
         * {
@@ -123,6 +124,25 @@
         input:focus, textarea:focus {
             border-color: #c061ff;
             box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.15);
+        }
+
+        /* ✅ NOTIFIKASI ERROR DI BAWAH ALAMAT */
+        .notif-error {
+            margin-top: 10px;
+            padding: 12px 14px;
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 10px;
+            color: #fca5a5;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            animation: munculNotif 0.3s ease;
+        }
+
+        @keyframes munculNotif {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .qty-buttons {
@@ -335,6 +355,8 @@
             <div class="form-group">
                 <label>Alamat Lengkap</label>
                 <textarea name="alamat" rows="3" required placeholder="Masukkan alamat pengiriman..."></textarea>
+                <!-- ✅ NOTIFIKASI ERROR DI BAWAH ALAMAT -->
+                <div class="notif-error" id="notifError"></div>
             </div>
 
             <div class="form-group">
@@ -395,6 +417,7 @@ const teksHasil = document.getElementById("teksHasil");
 const popup = document.getElementById("popupBerhasil");
 const tampilPO = document.getElementById("tampilPO");
 const btnTutupPopup = document.getElementById("btnTutupPopup");
+const notifError = document.getElementById("notifError");
 
 // 🔘 Pilih jumlah dengan tombol
 document.querySelectorAll('.qty-btn').forEach(btn => {
@@ -410,16 +433,18 @@ document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
 btnTutupPopup.addEventListener('click', function(){
     popup.style.display = "none";
     form.reset();
+    notifError.style.display = "none";
     document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
     jumlahPilih.value = "1";
 });
 
-// 📤 Kirim Pesanan → TAMPIL POPUP!
+// 📤 Kirim Pesanan
 form.addEventListener("submit", async function(e) {
     e.preventDefault();
     btnKirim.disabled = true;
     btnKirim.textContent = "⏳ Mengirim...";
+    notifError.style.display = "none"; // Sembunyikan notifikasi lama
 
     try {
         const formData = new FormData(form);
@@ -434,12 +459,21 @@ form.addEventListener("submit", async function(e) {
             // ✅ TAMPIL POPUP DENGAN NOMOR PO!
             tampilPO.textContent = hasil.no_po;
             popup.style.display = "flex";
+            form.reset();
+            notifError.style.display = "none";
+            document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
+            jumlahPilih.value = "1";
         } else {
-            alert("❌ Gagal dikirim! Coba lagi.");
+            // ✅ TAMPIL PESAN ASLI DARI GS DI BAWAH ALAMAT
+            const pesan = hasil.pesan || "❌ Gagal dikirim! Coba lagi.";
+            notifError.textContent = pesan;
+            notifError.style.display = "block";
         }
 
     } catch (err) {
-        alert("❌ Gagal dikirim! Cek koneksi lalu coba lagi.");
+        notifError.textContent = "❌ Gagal terhubung! Coba lagi.";
+        notifError.style.display = "block";
         console.error(err);
     }
 
@@ -469,15 +503,15 @@ btnCek.addEventListener("click", async function() {
 
         if (data.ditemukan) {
             let kelasStatus = "";
-            if (data.status === "Baru") kelasStatus = "status-baru";
+            if (data.status === "Belum di bayar") kelasStatus = "status-baru";
             else if (data.status === "Proses") kelasStatus = "status-proses";
-            else if (data.status === "Selesai") kelasStatus = "status-selesai";
+            else if (data.status === "Kirim") kelasStatus = "status-selesai";
 
             teksHasil.innerHTML = `
                 <p><strong>Nomor PO:</strong> ${data.no_po || '-'}</p>
                 <p><strong>Nama:</strong> ${data.nama || '-'}</p>
                 <p><strong>Jumlah:</strong> ${data.jumlah || '-'} PCS</p>
-                <p><strong>Status:</strong> <span class="${kelasStatus}">${data.status || 'Baru'}</span></p>
+                <p><strong>Status:</strong> <span class="${kelasStatus}">${data.status || 'Belum di bayar'}</span></p>
             `;
             hasilCek.style.display = "block";
         } else {
