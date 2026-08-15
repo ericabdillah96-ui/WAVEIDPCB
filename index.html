@@ -232,13 +232,6 @@
             box-shadow: 0 0 25px rgba(59, 130, 246, 0.45);
         }
 
-        .pembatas {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, var(--accent), transparent);
-            margin: 28px 0;
-            border: none;
-        }
-
         .footer {
             text-align: center;
             margin-top: 32px;
@@ -249,7 +242,7 @@
             border-radius: 12px;
         }
 
-        /* ===== POPUP BOX ===== */
+        /* ===== POPUP UMUM ===== */
         .popup-latar {
             position: fixed;
             top: 0;
@@ -266,13 +259,13 @@
 
         .popup-kotak {
             background: linear-gradient(145deg, #0e142b, #151b35);
-            border: 2px solid var(--success);
+            border: 2px solid var(--accent);
             border-radius: 20px;
-            padding: 36px 28px;
+            padding: 32px 24px;
             max-width: 420px;
             width: 100%;
             text-align: center;
-            box-shadow: 0 0 30px rgba(34, 211, 238, 0.25), 0 0 60px rgba(157, 78, 221, 0.2);
+            box-shadow: 0 0 30px rgba(157, 78, 221, 0.25);
             animation: muncul 0.4s ease;
         }
 
@@ -282,28 +275,20 @@
         }
 
         .popup-kotak h3 {
-            font-size: 24px;
-            color: var(--success);
+            font-size: 22px;
+            color: var(--text-main);
             margin-bottom: 16px;
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
         .popup-kotak p {
-            font-size: 16px;
+            font-size: 15px;
             color: var(--text-medium);
-            margin-bottom: 8px;
+            margin-bottom: 14px;
         }
 
-        .popup-no-po {
-            font-size: 20px;
-            font-weight: 700;
-            color: #fff;
-            padding: 14px;
-            background: rgba(34, 211, 238, 0.1);
-            border-radius: 12px;
-            margin: 12px 0 24px;
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            letter-spacing: 1px;
+        .popup-kotak input {
+            margin-bottom: 16px;
         }
 
         .popup-tombol-bayar {
@@ -330,6 +315,7 @@
             border: 1px solid var(--text-light);
             color: var(--text-light);
             box-shadow: none;
+            margin-top: 8px;
         }
 
         .popup-tombol-tutup:hover {
@@ -338,13 +324,19 @@
             background: rgba(255,255,255,0.05);
         }
 
-        .status-result {
+        .popup-hasil {
             margin-top: 16px;
-            padding: 18px;
+            padding: 16px;
             background: rgba(15, 20, 40, 0.8);
             border: 1px solid var(--accent);
             border-radius: 12px;
+            text-align: left;
             display: none;
+        }
+
+        .popup-hasil p {
+            margin-bottom: 6px;
+            font-size: 14px;
         }
 
         .status-baru { color: #60a5fa; }
@@ -395,37 +387,43 @@
                 <input type="hidden" name="jumlah" id="jumlahPilih" value="1">
             </div>
 
+            <!-- ✅ TOMBOL KIRIM PESANAN -->
             <button type="submit" id="btnKirim">✅ Kirim Pesanan</button>
+
+            <!-- ✅ TOMBOL CEK STATUS → CUMA TOMBOL, TANPA KOTAK DI BAWAHNYA -->
+            <button type="button" class="btn-secondary" id="btnBukaPopupCek">🔍 Cek Status Pesanan</button>
         </form>
-
-        <hr class="pembatas">
-
-        <div class="form-group" style="margin-bottom: 0;">
-            <label>🔍 Cek Status Pesanan</label>
-            <input type="text" id="cekInput" placeholder="Masukkan Nomor PO atau Nomor HP...">
-            <button type="button" class="btn-secondary" id="btnCek">🔍 Cek Sekarang</button>
-        </div>
-
-        <div class="status-result" id="hasilCek">
-            <h4 style="color:var(--text-main); margin-bottom:10px;">📋 Hasil Pencarian</h4>
-            <div id="teksHasil"></div>
-        </div>
     </div>
 
     <div class="footer">© 2026 • Sistem Pemesanan PO PCB</div>
 </div>
 
-<!-- ✅ POPUP BERHASIL DI BAWAH INI -->
+<!-- ✅ POPUP BERHASIL KIRIM -->
 <div class="popup-latar" id="popupBerhasil">
     <div class="popup-kotak">
         <h3>✅ Pendaftaran Berhasil!!</h3>
         <p>Nomor pesananmu:</p>
-        <div class="popup-no-po" id="tampilPO"></div>
+        <div style="font-size: 20px; font-weight:700; color:#fff; padding:14px; background:rgba(34,211,238,0.1); border-radius:12px; margin:12px 0 24px; letter-spacing:1px; font-family:'Plus Jakarta Sans',sans-serif;" id="tampilPO"></div>
 
         <!-- 👇 GANTI LINK DI BAWAH INI DENGAN LINK PEMBAYARANMU -->
         <a href="https://GANTI-DENGAN-LINK-PEMBAYARANMU.COM" target="_blank" class="popup-tombol-bayar">💳 Lanjutkan Pembayaran</a>
 
         <button type="button" class="popup-tombol-tutup" id="btnTutupPopup">Tutup</button>
+    </div>
+</div>
+
+<!-- ✅ POPUP CEK STATUS -->
+<div class="popup-latar" id="popupCekStatus">
+    <div class="popup-kotak">
+        <h3>🔍 Cek Status Pesanan</h3>
+        <p>Silakan masukkan Nomor PO atau Nomor HP Anda</p>
+        <input type="text" id="inputCekNomor" placeholder="Contoh: PO-150826-001 atau 081234567890">
+        <button type="button" id="btnPeriksa">🔍 Periksa</button>
+
+        <!-- ✅ HASIL PENCARIAN MUNCUL DI SINI -->
+        <div class="popup-hasil" id="hasilPencarian"></div>
+
+        <button type="button" class="popup-tombol-tutup" id="btnTutupCek">Tutup</button>
     </div>
 </div>
 
@@ -436,15 +434,21 @@ const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbw9acgKvkymAbkhEdWd
 const form = document.getElementById("formPO");
 const btnKirim = document.getElementById("btnKirim");
 const jumlahPilih = document.getElementById("jumlahPilih");
-const btnCek = document.getElementById("btnCek");
-const cekInput = document.getElementById("cekInput");
-const hasilCek = document.getElementById("hasilCek");
-const teksHasil = document.getElementById("teksHasil");
-const popup = document.getElementById("popupBerhasil");
+const tampilKuota = document.getElementById("tampilKuota");
+const notifError = document.getElementById("notifError");
+
+// ✅ POPUP CEK STATUS
+const popupCekStatus = document.getElementById("popupCekStatus");
+const btnBukaPopupCek = document.getElementById("btnBukaPopupCek");
+const inputCekNomor = document.getElementById("inputCekNomor");
+const btnPeriksa = document.getElementById("btnPeriksa");
+const hasilPencarian = document.getElementById("hasilPencarian");
+const btnTutupCek = document.getElementById("btnTutupCek");
+
+// ✅ POPUP BERHASIL
+const popupBerhasil = document.getElementById("popupBerhasil");
 const tampilPO = document.getElementById("tampilPO");
 const btnTutupPopup = document.getElementById("btnTutupPopup");
-const notifError = document.getElementById("notifError");
-const tampilKuota = document.getElementById("tampilKuota");
 
 // ✅ AMBIL & TAMPILKAN SISA KUOTA SAAT HALAMAN DIBUKA
 async function muatKuota() {
@@ -467,15 +471,74 @@ document.querySelectorAll('.qty-btn').forEach(btn => {
 });
 document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
 
-// ❌ Tutup popup saat diklik tombol Tutup
+// ✅ BUKA POPUP CEK STATUS
+btnBukaPopupCek.addEventListener('click', function() {
+    popupCekStatus.style.display = "flex";
+    inputCekNomor.value = "";
+    hasilPencarian.style.display = "none";
+});
+
+// ✅ TUTUP POPUP CEK STATUS
+btnTutupCek.addEventListener('click', function() {
+    popupCekStatus.style.display = "none";
+    inputCekNomor.value = "";
+    hasilPencarian.style.display = "none";
+});
+
+// ✅ TUTUP POPUP BERHASIL
 btnTutupPopup.addEventListener('click', function(){
-    popup.style.display = "none";
+    popupBerhasil.style.display = "none";
     form.reset();
     notifError.style.display = "none";
     document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
     document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
     jumlahPilih.value = "1";
-    muatKuota(); // ✅ Refresh sisa kuota setelah tutup popup
+    muatKuota();
+});
+
+// ✅ KLIK PERIKSA → CARI DATA
+btnPeriksa.addEventListener('click', async function() {
+    const kataKunci = inputCekNomor.value.trim();
+    if (!kataKunci) {
+        alert("Masukkan Nomor PO atau Nomor HP dulu!");
+        return;
+    }
+
+    btnPeriksa.textContent = "⏳ Mencari...";
+    btnPeriksa.disabled = true;
+    hasilPencarian.style.display = "none";
+
+    try {
+        const param = new URLSearchParams({ cek: kataKunci });
+        const res = await fetch(URL_WEB_APP + "?" + param, { method: "GET" });
+        const data = await res.json();
+
+        if (data.ditemukan) {
+            let kelasStatus = "";
+            if (data.status === "Belum di bayar") kelasStatus = "status-baru";
+            else if (data.status === "Proses") kelasStatus = "status-proses";
+            else if (data.status === "Kirim") kelasStatus = "status-selesai";
+
+            hasilPencarian.innerHTML = `
+                <p><strong>Nomor PO:</strong> ${data.no_po || '-'}</p>
+                <p><strong>Nama:</strong> ${data.nama || '-'}</p>
+                <p><strong>Jumlah:</strong> ${data.jumlah || '-'} PCS</p>
+                <p><strong>Status:</strong> <span class="${kelasStatus}">${data.status || 'Belum di bayar'}</span></p>
+            `;
+            hasilPencarian.style.display = "block";
+        } else {
+            hasilPencarian.innerHTML = `<p style="color:#fca5a5;">❌ Pesanan tidak ditemukan.<br>Cek kembali Nomor PO / HP Anda.</p>`;
+            hasilPencarian.style.display = "block";
+        }
+
+    } catch (err) {
+        hasilPencarian.innerHTML = `<p style="color:#fca5a5;">⚠️ Sistem sedang diperbarui. Coba lagi nanti.</p>`;
+        hasilPencarian.style.display = "block";
+        console.error(err);
+    }
+
+    btnPeriksa.textContent = "🔍 Periksa";
+    btnPeriksa.disabled = false;
 });
 
 // 📤 Kirim Pesanan
@@ -483,7 +546,7 @@ form.addEventListener("submit", async function(e) {
     e.preventDefault();
     btnKirim.disabled = true;
     btnKirim.textContent = "⏳ Mengirim...";
-    notifError.style.display = "none"; // Sembunyikan notifikasi lama
+    notifError.style.display = "none";
 
     try {
         const formData = new FormData(form);
@@ -495,20 +558,17 @@ form.addEventListener("submit", async function(e) {
         const hasil = await res.json();
 
         if (hasil.status === "BERHASIL") {
-            // ✅ TAMPIL POPUP DENGAN NOMOR PO!
             tampilPO.textContent = hasil.no_po;
-            popup.style.display = "flex";
+            popupBerhasil.style.display = "flex";
             form.reset();
             notifError.style.display = "none";
             document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
             document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
             jumlahPilih.value = "1";
-            // ✅ Refresh sisa kuota setelah berhasil pesan
             if (hasil.sisa_kuota !== undefined) {
                 tampilKuota.textContent = hasil.sisa_kuota;
             }
         } else {
-            // ✅ TAMPIL PESAN ASLI DARI GS DI BAWAH ALAMAT
             const pesan = hasil.pesan || "❌ Gagal dikirim! Coba lagi.";
             notifError.textContent = pesan;
             notifError.style.display = "block";
@@ -522,54 +582,6 @@ form.addEventListener("submit", async function(e) {
 
     btnKirim.disabled = false;
     btnKirim.textContent = "✅ Kirim Pesanan";
-});
-
-// 🔍 Cek Status
-btnCek.addEventListener("click", async function() {
-    const kataKunci = cekInput.value.trim();
-    if (!kataKunci) {
-        alert("Masukkan Nomor PO atau Nomor HP dulu!");
-        return;
-    }
-
-    btnCek.textContent = "⏳ Mencari...";
-    btnCek.disabled = true;
-    hasilCek.style.display = "none";
-
-    try {
-        const param = new URLSearchParams({ cek: kataKunci });
-        const res = await fetch(URL_WEB_APP + "?" + param, {
-            method: "GET"
-        });
-
-        const data = await res.json();
-
-        if (data.ditemukan) {
-            let kelasStatus = "";
-            if (data.status === "Belum di bayar") kelasStatus = "status-baru";
-            else if (data.status === "Proses") kelasStatus = "status-proses";
-            else if (data.status === "Kirim") kelasStatus = "status-selesai";
-
-            teksHasil.innerHTML = `
-                <p><strong>Nomor PO:</strong> ${data.no_po || '-'}</p>
-                <p><strong>Nama:</strong> ${data.nama || '-'}</p>
-                <p><strong>Jumlah:</strong> ${data.jumlah || '-'} PCS</p>
-                <p><strong>Status:</strong> <span class="${kelasStatus}">${data.status || 'Belum di bayar'}</span></p>
-            `;
-            hasilCek.style.display = "block";
-        } else {
-            teksHasil.innerHTML = `<p style="color:#fca5a5;">❌ Pesanan tidak ditemukan. Cek nomor PO / HP Anda.</p>`;
-            hasilCek.style.display = "block";
-        }
-
-    } catch (err) {
-        teksHasil.innerHTML = `<p style="color:#fca5a5;">⚠️ Sistem sedang diperbarui. Coba lagi nanti.</p>`;
-        hasilCek.style.display = "block";
-        console.error(err);
-    }
-
-    btnCek.textContent = "🔍 Cek Sekarang";
-    btnCek.disabled = false;
 });
 
 // ✅ MULAI AMBIL SISA KUOTA SAAT HALAMAN DIBUKA
