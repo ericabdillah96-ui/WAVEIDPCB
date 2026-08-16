@@ -301,10 +301,6 @@
             margin-bottom: 14px;
         }
 
-        .popup-kotak input {
-            margin-bottom: 16px;
-        }
-
         .popup-tombol-bayar {
             display: block;
             text-decoration: none;
@@ -411,7 +407,7 @@
         <h3>✅ Pendaftaran Berhasil!!</h3>
         <p>Nomor pesananmu:</p>
         <div style="font-size: 20px; font-weight:700; color:#fff; padding:14px; background:rgba(34,211,238,0.1); border-radius:12px; margin:12px 0 24px; letter-spacing:1px; font-family:'Plus Jakarta Sans',sans-serif;" id="tampilPO"></div>
-        <a id="linkBayar" href="#" class="popup-tombol-bayar">💳 Lanjutkan Pembayaran</a>
+        <a id="linkBayar" href="pembayaran.html" class="popup-tombol-bayar">💳 Lanjutkan Pembayaran</a>
         <button type="button" class="popup-tombol-tutup" id="btnTutupPopup">Tutup</button>
     </div>
 </div>
@@ -430,8 +426,8 @@
 <script>
 const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbw9acgKvkymAbkhEdWdo9uKHT1WGdlP8kW1-pisKL-0-aDcjgtHJt2X2byT16oCPEE/exec";
 
-// ✅ GANTI LINK INI DENGAN ALAMAT HALAMAN PEMBAYARANMU
-const LINK_HALAMAN_BAYAR = "https://GANTI-DENGAN-LINK-PEMBAYARANMU.COM";
+// ✅ Karena 1 folder sama, cukup nama file-nya aja!
+const LINK_HALAMAN_BAYAR = "pembayaran.html";
 
 const form = document.getElementById("formPO");
 const btnKirim = document.getElementById("btnKirim");
