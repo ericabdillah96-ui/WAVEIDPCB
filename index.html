@@ -564,10 +564,6 @@ const btnSalinPO = document.getElementById("btnSalinPO");
 const btnLanjutBayar = document.getElementById("btnLanjutBayar");
 const btnTutupPopup = document.getElementById("btnTutupPopup");
 
-// ✅ NOMOR URUT MULAI DARI 1, NAIK TERUS
-let nomorUrut = 1;
-let tanggalTerakhir = "";
-
 let dataSementara = { nama: "", hp: "", alamat: "", jumlah: "", no_po: "" };
 
 cekSetuju.addEventListener("change", function() {
@@ -589,35 +585,9 @@ btnSalinPO.addEventListener("click", async function() {
     }
 });
 
-btnLanjutBayar.addEventListener("click", async function() {
-    if (!dataSementara.nama) return;
-    btnLanjutBayar.textContent = "⏳ Menyimpan Data...";
-    btnLanjutBayar.disabled = true;
-
-    try {
-        const formData = new FormData();
-        formData.append("nama", dataSementara.nama);
-        formData.append("hp", dataSementara.hp);
-        formData.append("alamat", dataSementara.alamat);
-        formData.append("jumlah", dataSementara.jumlah);
-        formData.append("no_po", dataSementara.no_po);
-
-        const res = await fetch(URL_WEB_APP, { method: "POST", body: formData });
-        const hasil = await res.json();
-
-        if (hasil.status === "BERHASIL" || hasil.sukses) {
-            window.location.href = LINK_HALAMAN_BAYAR + "?noPO=" + encodeURIComponent(dataSementara.no_po);
-        } else {
-            alert("⚠️ Gagal menyimpan data! Coba lagi.");
-            btnLanjutBayar.textContent = "💳 Lanjutkan Pembayaran";
-            btnLanjutBayar.disabled = false;
-        }
-    } catch (err) {
-        alert("⚠️ Gagal terhubung ke server! Coba lagi.");
-        console.error(err);
-        btnLanjutBayar.textContent = "💳 Lanjutkan Pembayaran";
-        btnLanjutBayar.disabled = false;
-    }
+btnLanjutBayar.addEventListener("click", function() {
+    if (!dataSementara.no_po) return;
+    window.location.href = LINK_HALAMAN_BAYAR + "?noPO=" + encodeURIComponent(dataSementara.no_po);
 });
 
 async function muatKuota() {
@@ -706,11 +676,11 @@ btnPeriksa.addEventListener('click', async function() {
     btnPeriksa.disabled = false;
 });
 
-// ✅ KLIK KIRIM → LANGSUNG DAPAT NOMOR PO, SIMPAN, TAMPILKAN
+// ✅ KLIK KIRIM → KIRIM KE SERVER → DAPAT NOMOR PO DARI SERVER
 form.addEventListener("submit", async function(e) {
     e.preventDefault();
     btnKirim.disabled = true;
-    btnKirim.textContent = "⏳ Memproses...";
+    btnKirim.textContent = "⏳ Menyimpan...";
     notifError.style.display = "none";
 
     const formData = new FormData(form);
@@ -727,38 +697,57 @@ form.addEventListener("submit", async function(e) {
         return;
     }
 
-    // ✅ BUAT NOMOR PO SAAT KLIK KIRIM
-    const hariIni = new Date();
-    const tgl = String(hariIni.getDate()).padStart(2, '0');
-    const bln = String(hariIni.getMonth() + 1).padStart(2, '0');
-    const thn = String(hariIni.getFullYear()).slice(-2);
-    const tglSekarang = tgl + bln + thn; // "160826"
+    try {
+        // ✅ KIRIM DATA KE SERVER → SERVER YANG BUATKAN NOMOR PO
+        const kirim = new FormData();
+        kirim.append("nama", nama);
+        kirim.append("hp", hp);
+        kirim.append("alamat", alamat);
+        kirim.append("jumlah", jumlah);
 
-    // ✅ Kalau GANTI HARI → urut RESET ke 001
-    if (tglSekarang !== tanggalTerakhir) {
-        tanggalTerakhir = tglSekarang;
-        nomorUrut = 1;
+        const res = await fetch(URL_WEB_APP, {
+            method: "POST",
+            body: kirim
+        });
+        const hasil = await res.json();
+
+        if (hasil.status === "BERHASIL") {
+            // ✅ NOMOR PO DARI SERVER → PASTI SAMA DENGAN SHEET!
+            const noPO = hasil.no_po;
+            dataSementara = { nama, hp, alamat, jumlah, no_po: noPO };
+
+            // ✅ TAMPILKAN KE PEMBELI
+            tampilPO.textContent = noPO;
+            popupBerhasil.style.display = "flex";
+
+            // Reset form
+            form.reset();
+            cekSetuju.checked = false;
+            document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
+            jumlahPilih.value = "1";
+        }
+        else if (hasil.status === "DUPLIKAT") {
+            notifError.textContent = "❌ " + hasil.pesan;
+            notifError.style.display = "block";
+        }
+        else if (hasil.status === "PENUH") {
+            notifError.textContent = "⚠️ " + hasil.pesan;
+            notifError.style.display = "block";
+        }
+        else if (hasil.status === "RAMAI") {
+            notifError.textContent = "⏳ " + hasil.pesan;
+            notifError.style.display = "block";
+        }
+        else {
+            notifError.textContent = "❌ Gagal membuat pesanan!";
+            notifError.style.display = "block";
+        }
+    } catch (err) {
+        notifError.textContent = "⚠️ Gagal terhubung! Coba lagi.";
+        notifError.style.display = "block";
+        console.error(err);
     }
-
-    // ✅ Bikin nomor urut 3 digit → 001, 002, 003...
-    const urut = String(nomorUrut).padStart(3, '0');
-    const noPO = `PO-${tglSekarang}-${urut}`;
-
-    // ✅ NAIK OTOMATIS untuk pesanan berikutnya
-    nomorUrut++;
-
-    // Simpan sementara & tampilkan
-    dataSementara = { nama, hp, alamat, jumlah, no_po: noPO };
-    tampilPO.textContent = noPO;
-    popupBerhasil.style.display = "flex";
-
-    // Reset form
-    form.reset();
-    cekSetuju.checked = false;
-    btnKirim.disabled = true;
-    document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
-    document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
-    jumlahPilih.value = "1";
 
     btnKirim.disabled = false;
     btnKirim.textContent = "✅ Kirim Pesanan";
