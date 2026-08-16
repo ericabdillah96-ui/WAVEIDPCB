@@ -86,7 +86,6 @@
             color: transparent;
         }
 
-        /* ✅ COUNTDOWN KUOTA - TANPA /200 + EFEK NYALA BERKEDIP */
         .kuota-box {
             margin-top: 12px;
             padding: 10px 20px;
@@ -104,11 +103,9 @@
             font-size: 22px;
             color: #ffffff;
             font-family: 'Plus Jakarta Sans', sans-serif;
-            /* ✅ EFEK CAHAYA BERKEDIP NYALA */
             animation: nyalaBerkedip 1.5s ease-in-out infinite alternate;
         }
 
-        /* ✅ ANIMASI BERKEDIP NYALA */
         @keyframes nyalaBerkedip {
             from {
                 color: #ffffff;
@@ -356,9 +353,9 @@
             font-size: 14px;
         }
 
-        .status-baru { color: #60a5fa; }
-        .status-proses { color: #fbbf24; }
-        .status-selesai { color: #34d399; }
+        .status-belum { color: #f87171; }
+        .status-lunas { color: #fbbf24; }
+        .status-kirim { color: #34d399; }
     </style>
 </head>
 <body>
@@ -367,7 +364,6 @@
     <div class="header">
         <h2>📋 <span>FORMULIR PO PCB</span></h2>
         <p>Isi data & pilih jumlah pesanan</p>
-        <!-- ✅ TANPA /200 + ANGKA BERKEDIP NYALA -->
         <div class="kuota-box">
             <span class="kuota-teks">Sisa kuota tersedia: </span>
             <span class="kuota-angka" id="tampilKuota">--</span>
@@ -415,7 +411,7 @@
         <h3>✅ Pendaftaran Berhasil!!</h3>
         <p>Nomor pesananmu:</p>
         <div style="font-size: 20px; font-weight:700; color:#fff; padding:14px; background:rgba(34,211,238,0.1); border-radius:12px; margin:12px 0 24px; letter-spacing:1px; font-family:'Plus Jakarta Sans',sans-serif;" id="tampilPO"></div>
-        <a href="https://GANTI-DENGAN-LINK-PEMBAYARANMU.COM" target="_blank" class="popup-tombol-bayar">💳 Lanjutkan Pembayaran</a>
+        <a id="linkBayar" href="#" class="popup-tombol-bayar">💳 Lanjutkan Pembayaran</a>
         <button type="button" class="popup-tombol-tutup" id="btnTutupPopup">Tutup</button>
     </div>
 </div>
@@ -434,11 +430,15 @@
 <script>
 const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbw9acgKvkymAbkhEdWdo9uKHT1WGdlP8kW1-pisKL-0-aDcjgtHJt2X2byT16oCPEE/exec";
 
+// ✅ GANTI LINK INI DENGAN ALAMAT HALAMAN PEMBAYARANMU
+const LINK_HALAMAN_BAYAR = "https://GANTI-DENGAN-LINK-PEMBAYARANMU.COM";
+
 const form = document.getElementById("formPO");
 const btnKirim = document.getElementById("btnKirim");
 const jumlahPilih = document.getElementById("jumlahPilih");
 const tampilKuota = document.getElementById("tampilKuota");
 const notifError = document.getElementById("notifError");
+const linkBayar = document.getElementById("linkBayar");
 
 const popupCekStatus = document.getElementById("popupCekStatus");
 const btnBukaPopupCek = document.getElementById("btnBukaPopupCek");
@@ -510,15 +510,15 @@ btnPeriksa.addEventListener('click', async function() {
 
         if (data.ditemukan) {
             let kelasStatus = "";
-            if (data.status === "Belum di bayar") kelasStatus = "status-baru";
-            else if (data.status === "Proses") kelasStatus = "status-proses";
-            else if (data.status === "Kirim") kelasStatus = "status-selesai";
+            if (data.status === "Belum Bayar") kelasStatus = "status-belum";
+            else if (data.status === "Lunas") kelasStatus = "status-lunas";
+            else if (data.status === "Dalam Pengiriman") kelasStatus = "status-kirim";
 
             hasilPencarian.innerHTML = `
                 <p><strong>Nomor PO:</strong> ${data.no_po || '-'}</p>
                 <p><strong>Nama:</strong> ${data.nama || '-'}</p>
                 <p><strong>Jumlah:</strong> ${data.jumlah || '-'} PCS</p>
-                <p><strong>Status:</strong> <span class="${kelasStatus}">${data.status || 'Belum di bayar'}</span></p>
+                <p><strong>Status:</strong> <span class="${kelasStatus}">${data.status || 'Belum Bayar'}</span></p>
             `;
             hasilPencarian.style.display = "block";
         } else {
@@ -553,6 +553,8 @@ form.addEventListener("submit", async function(e) {
 
         if (hasil.status === "BERHASIL") {
             tampilPO.textContent = hasil.no_po;
+            // ✅ Bawa Nomor PO otomatis ke halaman Pembayaran
+            linkBayar.href = LINK_HALAMAN_BAYAR + "?noPO=" + encodeURIComponent(hasil.no_po);
             popupBerhasil.style.display = "flex";
             form.reset();
             notifError.style.display = "none";
