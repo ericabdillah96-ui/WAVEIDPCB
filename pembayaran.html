@@ -92,6 +92,18 @@
             color: var(--text-medium);
         }
 
+        .no-po-box {
+            display: inline-block;
+            margin-top: 10px;
+            padding: 8px 16px;
+            background: rgba(34, 211, 238, 0.1);
+            border: 1px solid rgba(34, 211, 238, 0.4);
+            border-radius: 10px;
+            color: #22d3ee;
+            font-weight: 600;
+            font-size: 15px;
+        }
+
         .grid-wrapper {
             display: grid;
             grid-template-columns: 280px 1fr 340px;
@@ -296,6 +308,7 @@
     <div class="header">
         <h2>💳 <span>DATA REKENING PEMBAYARAN</span></h2>
         <p class="sub-judul">Lakukan pembayaran lalu konfirmasi ke WhatsApp</p>
+        <div id="kotakPO" class="no-po-box" style="display:none;">📌 Nomor PO Anda: <span id="teksPO"></span></div>
     </div>
 
     <div class="grid-wrapper">
@@ -337,8 +350,7 @@
                 </div>
             </div>
 
-            <a href="https://wa.me/6281808793105?text=Halo%2C%20saya%20sudah%20melakukan%20pembayaran%20untuk%20PO%20PCB.%0A%0A📌%20Nomor%20PO%3A%20%0A👤%20Nama%3A%20%0A📅%20Tanggal%20Transfer%3A%20%0A%0A✅%20Silakan%20kirim%20BUKTI%20TRANSFER%20pembayaran%20Anda%20disini%20ya%20terima%20kasih%21" 
-               target="_blank" class="tombol-wa">
+            <a id="linkWA" href="#" target="_blank" class="tombol-wa">
                 💬 Konfirmasi Pembayaran ke WhatsApp
             </a>
         </div>
@@ -370,6 +382,32 @@
 
     <div class="footer">© 2026 • Sistem Pemesanan PO PCB</div>
 </div>
+
+<script>
+// ✅ BACA NOMOR PO OTOMATIS DARI LINK URL
+const urlParams = new URLSearchParams(window.location.search);
+const noPO = urlParams.get('noPO') || '';
+
+if (noPO) {
+    // ✅ Tampilkan Nomor PO di halaman
+    document.getElementById('teksPO').textContent = noPO;
+    document.getElementById('kotakPO').style.display = 'block';
+
+    // ✅ MASUKKAN NOMOR PO OTOMATIS KE PESAN WHATSAPP
+    const pesan = encodeURIComponent(
+`Halo, saya sudah melakukan pembayaran untuk PO PCB.
+
+📌 Nomor PO: ${noPO}
+👤 Nama: 
+📅 Tanggal Transfer: 
+
+✅ Silakan kirim BUKTI TRANSFER pembayaran Anda disini ya terima kasih!`
+    );
+
+    // ✅ Set link tombol WhatsApp
+    document.getElementById('linkWA').href = "https://wa.me/6281808793105?text=" + pesan;
+}
+</script>
 
 </body>
 </html>
