@@ -365,10 +365,12 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
             display: block;
             margin-bottom: 10px;
+            user-select: text;
+            cursor: text;
         }
 
         .tombol-salin-po {
-            padding: 8px 16px;
+            padding: 10px 20px;
             background: rgba(157, 78, 221, 0.25);
             color: #e9d5ff;
             border: none;
@@ -455,6 +457,17 @@
         .status-belum { color: #f87171; }
         .status-lunas { color: #fbbf24; }
         .status-kirim { color: #34d399; }
+
+        .peringatan-waktu {
+            margin-top: 10px;
+            padding: 10px;
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid rgba(239, 68, 68, 0.3);
+            border-radius: 8px;
+            color: #fca5a5;
+            font-size: 13px;
+            line-height: 1.6;
+        }
     </style>
 </head>
 <body>
@@ -570,18 +583,48 @@ cekSetuju.addEventListener("change", function() {
     btnKirim.disabled = !this.checked;
 });
 
+// ✅ FUNGSI SALIN NOMOR PO - DIPERBAIKI
 btnSalinPO.addEventListener("click", async function() {
-    if (!dataSementara.no_po) return;
+    const teksPO = tampilPO.textContent.trim();
+    if (!teksPO) { alert("Nomor PO belum tersedia!"); return; }
+
+    let berhasil = false;
+
+    // Cara 1: Pakai Clipboard API
     try {
-        await navigator.clipboard.writeText(dataSementara.no_po);
+        await navigator.clipboard.writeText(teksPO);
+        berhasil = true;
+    } catch (err) {
+        console.log("Clipboard API gagal, pakai cara alternatif");
+    }
+
+    // Cara 2: Alternatif kalau cara 1 gagal
+    if (!berhasil) {
+        try {
+            const inputSementara = document.createElement("textarea");
+            inputSementara.value = teksPO;
+            inputSementara.style.position = "fixed";
+            inputSementara.style.left = "-9999px";
+            document.body.appendChild(inputSementara);
+            inputSementara.select();
+            document.execCommand("copy");
+            document.body.removeChild(inputSementara);
+            berhasil = true;
+        } catch (err2) {
+            console.log("Salin otomatis gagal, minta salin manual");
+        }
+    }
+
+    // Tampilkan hasil
+    if (berhasil) {
         btnSalinPO.textContent = "✅ Berhasil Disalin!";
         btnSalinPO.classList.add("sukses");
         setTimeout(() => {
             btnSalinPO.textContent = "📋 Salin Nomor PO";
             btnSalinPO.classList.remove("sukses");
         }, 2500);
-    } catch (err) {
-        alert("Gagal menyalin! Salin manual: " + dataSementara.no_po);
+    } else {
+        alert("⚠️ Salin otomatis gagal!\n👉 Silakan PILIH dan SALIN manual nomor PO berikut:\n\n" + teksPO);
     }
 });
 
@@ -654,14 +697,26 @@ btnPeriksa.addEventListener('click', async function() {
             else if (data.status === "Lunas") kelasStatus = "status-lunas";
             else if (data.status === "Dalam Pengiriman") kelasStatus = "status-kirim";
 
+            let bagianWaktu = "";
+            if (data.status === "Belum Bayar" && data.sisa_waktu) {
+                bagianWaktu = `
+                    <p>⏰ <strong>Dibuat:</strong> ${data.waktu_dibuat || '-'}</p>
+                    <p>⌛ <strong>Sisa waktu bayar:</strong> ${data.sisa_waktu}</p>
+                    <div class="peringatan-waktu">
+                        ⚠️ Lewat ${data.batas_jam || 12} jam belum bayar → pesanan otomatis dihapus!
+                    </div>
+                `;
+            }
+
             hasilPencarian.innerHTML = `
                 <p><strong>Nomor PO:</strong> ${data.no_po || '-'}</p>
                 <p><strong>Nama:</strong> ${data.nama || '-'}</p>
                 <p><strong>Jumlah:</strong> ${data.jumlah || '-'} PCS</p>
                 <p><strong>Status:</strong> <span class="${kelasStatus}">${data.status || 'Belum Bayar'}</span></p>
+                ${bagianWaktu}
                 <div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(157,78,221,0.3);">
-                    <p style="font-size:13px; color:#94a3b8; margin-bottom:8px;">Jika status tidak sesuai..</p>
-                    <a href="pembayaran.html?noPO=${encodeURIComponent(data.no_po || '')}" style="display:block; text-align:center; padding:10px; background:linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color:#fff; border-radius:10px; text-decoration:none; font-weight:600; font-size:14px;">👉 Klik di sini</a>
+                    <p style="font-size:13px; color:#94a3b8; margin-bottom:8px;">Lanjutkan pembayaran di sini 👇</p>
+                    <a href="pembayaran.html?noPO=${encodeURIComponent(data.no_po || '')}" style="display:block; text-align:center; padding:10px; background:linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color:#fff; border-radius:10px; text-decoration:none; font-weight:600; font-size:14px;">💳 Lanjut Bayar</a>
                 </div>`;
             hasilPencarian.style.display = "block";
         } else {
