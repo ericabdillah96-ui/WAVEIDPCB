@@ -1,0 +1,587 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Formulir PO PCB</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@500;600;700&display=swap');
+
+        :root {
+          --bg: #050814;
+          --bg-gradient: linear-gradient(135deg, #050814 0%, #0b1020 50%, #121830 100%);
+          --panel: #0f1424;
+          --accent: #9d4edd;
+          --accent-gradient: linear-gradient(135deg, #7b2ffd 0%, #c061ff 100%);
+          --success: #22d3ee;
+          --text-main: #f0f4ff;
+          --text-medium: #c7d2fe;
+          --text-light: #94a3b8;
+          --glow-ungu: rgba(157, 78, 221, 0.4);
+          --shadow-lg: 0 8px 28px rgba(123, 47, 253, 0.2);
+          --error: #f87171;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background: var(--bg-gradient);
+            color: var(--text-medium);
+            font-family: 'Inter', sans-serif;
+            padding: 24px 16px;
+            line-height: 1.7;
+            min-height: 100vh;
+            position: relative;
+            overflow-x: hidden;
+        }
+
+        body::before {
+            content: '';
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(to right, rgba(157, 78, 221, 0.06) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(157, 78, 221, 0.06) 1px, transparent 1px);
+            background-size: 80px 80px;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .container {
+            max-width: 520px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header {
+            padding: 14px 28px;
+            border-radius: 20px;
+            background: linear-gradient(145deg, #0e142b 0%, #131a35 50%, #0a0f22 100%);
+            box-shadow: var(--shadow-lg), 0 0 18px var(--glow-ungu);
+            margin-bottom: 28px;
+            border: 1px solid var(--accent);
+            text-align: center;
+        }
+
+        h2 {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            font-size: 28px;
+            font-weight: 700;
+            color: var(--text-main);
+            margin-bottom: 8px;
+        }
+
+        h2 span {
+            background: var(--accent-gradient);
+            -webkit-background-clip: text;
+            background-clip: text;
+            color: transparent;
+        }
+
+        .kuota-box {
+            margin-top: 12px;
+            padding: 10px 20px;
+            background: rgba(34, 211, 238, 0.08);
+            border: 1px solid rgba(34, 211, 238, 0.3);
+            border-radius: 12px;
+            display: inline-block;
+        }
+        .kuota-teks {
+            font-size: 14px;
+            color: #a5f3fc;
+        }
+        .kuota-angka {
+            font-weight: 700;
+            font-size: 22px;
+            color: #ffffff;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            animation: nyalaBerkedip 1.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes nyalaBerkedip {
+            from {
+                color: #ffffff;
+                text-shadow: 
+                    0 0 8px #22d3ee,
+                    0 0 16px #22d3ee,
+                    0 0 24px #22d3ee;
+            }
+            to {
+                color: #a5f3fc;
+                text-shadow: 
+                    0 0 4px #22d3ee,
+                    0 0 8px #22d3ee;
+            }
+        }
+
+        .form-card {
+            background: var(--panel);
+            border: 1px solid var(--accent);
+            border-radius: 20px;
+            padding: 14px 28px;
+            box-shadow: var(--shadow-lg);
+            margin-bottom: 24px;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 10px;
+            color: var(--text-main);
+            font-weight: 600;
+            font-size: 15px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        input, textarea {
+            width: 100%;
+            padding: 14px 16px;
+            background: rgba(15, 20, 40, 0.8);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            color: var(--text-main);
+            font-size: 15px;
+            font-family: 'Inter', sans-serif;
+            outline: none;
+            transition: all 0.3s ease;
+        }
+
+        input:focus, textarea:focus {
+            border-color: #c061ff;
+            box-shadow: 0 0 0 3px rgba(157, 78, 221, 0.15);
+        }
+
+        .notif-error {
+            margin-top: 10px;
+            padding: 12px 14px;
+            background: rgba(248, 113, 113, 0.1);
+            border: 1px solid rgba(248, 113, 113, 0.3);
+            border-radius: 10px;
+            color: #fca5a5;
+            font-size: 14px;
+            font-weight: 500;
+            display: none;
+            animation: munculNotif 0.3s ease;
+        }
+
+        @keyframes munculNotif {
+            from { opacity: 0; transform: translateY(-4px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .qty-buttons {
+            display: flex;
+            gap: 12px;
+        }
+
+        .qty-btn {
+            flex: 1;
+            padding: 14px;
+            background: rgba(15, 20, 40, 0.8);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            color: var(--text-medium);
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .qty-btn:hover {
+            transform: translateY(-2px);
+        }
+
+        .qty-btn.active {
+            background: var(--accent-gradient);
+            color: #fff;
+            border-color: #c061ff;
+            box-shadow: 0 0 18px rgba(157, 78, 221, 0.4);
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: var(--accent-gradient);
+            color: #fff;
+            border: none;
+            border-radius: 12px;
+            font-size: 16px;
+            font-weight: 600;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            cursor: pointer;
+            margin-top: 8px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(157, 78, 221, 0.35);
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(168, 85, 247, 0.5);
+        }
+
+        button:disabled {
+            background: linear-gradient(135deg, #4a4a6a, #5a5a7a);
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
+        .btn-secondary {
+            background: linear-gradient(135deg, #1e3a8a 0%, #3b82f6 100%);
+            margin-top: 12px;
+        }
+
+        .btn-secondary:hover {
+            box-shadow: 0 0 25px rgba(59, 130, 246, 0.45);
+        }
+
+        .footer {
+            text-align: center;
+            margin-top: 32px;
+            padding: 16px;
+            color: var(--text-light);
+            font-size: 13px;
+            border-top: 1px solid rgba(157, 78, 221, 0.25);
+            border-radius: 12px;
+        }
+
+        .popup-latar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 999;
+            padding: 20px;
+        }
+
+        .popup-kotak {
+            background: linear-gradient(145deg, #0e142b, #151b35);
+            border: 2px solid var(--accent);
+            border-radius: 20px;
+            padding: 32px 24px;
+            max-width: 420px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 0 30px rgba(157, 78, 221, 0.25);
+            animation: muncul 0.4s ease;
+        }
+
+        @keyframes muncul {
+            from { opacity: 0; transform: scale(0.85); }
+            to { opacity: 1; transform: scale(1); }
+        }
+
+        .popup-kotak h3 {
+            font-size: 22px;
+            color: var(--text-main);
+            margin-bottom: 16px;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+        }
+
+        .popup-kotak p {
+            font-size: 15px;
+            color: var(--text-medium);
+            margin-bottom: 14px;
+        }
+
+        .popup-kotak input {
+            margin-bottom: 16px;
+        }
+
+        .popup-tombol-bayar {
+            display: block;
+            text-decoration: none;
+            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
+            color: #fff;
+            padding: 14px;
+            border-radius: 12px;
+            font-weight: 600;
+            font-size: 16px;
+            margin-bottom: 12px;
+            transition: all 0.3s ease;
+            box-shadow: 0 0 15px rgba(16, 185, 129, 0.35);
+        }
+
+        .popup-tombol-bayar:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0 25px rgba(52, 211, 153, 0.5);
+        }
+
+        .popup-tombol-tutup {
+            background: transparent;
+            border: 1px solid var(--text-light);
+            color: var(--text-light);
+            box-shadow: none;
+            margin-top: 8px;
+        }
+
+        .popup-tombol-tutup:hover {
+            border-color: #fff;
+            color: #fff;
+            background: rgba(255,255,255,0.05);
+        }
+
+        .popup-hasil {
+            margin-top: 16px;
+            padding: 16px;
+            background: rgba(15, 20, 40, 0.8);
+            border: 1px solid var(--accent);
+            border-radius: 12px;
+            text-align: left;
+            display: none;
+        }
+
+        .popup-hasil p {
+            margin-bottom: 6px;
+            font-size: 14px;
+        }
+
+        .status-belum { color: #f87171; }
+        .status-lunas { color: #fbbf24; }
+        .status-kirim { color: #34d399; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <div class="header">
+        <h2>📋 <span>FORMULIR PO PCB</span></h2>
+        <p>Isi data & pilih jumlah pesanan</p>
+        <div class="kuota-box">
+            <span class="kuota-teks">Sisa kuota tersedia: </span>
+            <span class="kuota-angka" id="tampilKuota">--</span>
+        </div>
+    </div>
+
+    <div class="form-card">
+        <form id="formPO">
+            <div class="form-group">
+                <label>Nama Pemesan</label>
+                <input type="text" name="nama" required placeholder="Masukkan nama lengkap...">
+            </div>
+
+            <div class="form-group">
+                <label>Nomor HP</label>
+                <input type="tel" name="hp" required placeholder="Contoh: 081234567890">
+            </div>
+
+            <div class="form-group">
+                <label>Alamat Lengkap</label>
+                <textarea name="alamat" rows="3" required placeholder="Masukkan alamat pengiriman..."></textarea>
+                <div class="notif-error" id="notifError"></div>
+            </div>
+
+            <div class="form-group">
+                <label>Jumlah PCB (Maksimal 3)</label>
+                <div class="qty-buttons">
+                    <button type="button" class="qty-btn" data-qty="1">1 PCS</button>
+                    <button type="button" class="qty-btn" data-qty="2">2 PCS</button>
+                    <button type="button" class="qty-btn" data-qty="3">3 PCS</button>
+                </div>
+                <input type="hidden" name="jumlah" id="jumlahPilih" value="1">
+            </div>
+
+            <button type="submit" id="btnKirim">✅ Kirim Pesanan</button>
+            <button type="button" class="btn-secondary" id="btnBukaPopupCek">🔍 Cek Status Pesanan</button>
+        </form>
+    </div>
+
+    <div class="footer">© 2026 • Sistem Pemesanan PO PCB</div>
+</div>
+
+<div class="popup-latar" id="popupBerhasil">
+    <div class="popup-kotak">
+        <h3>✅ Pendaftaran Berhasil!!</h3>
+        <p>Nomor pesananmu:</p>
+        <div style="font-size: 20px; font-weight:700; color:#fff; padding:14px; background:rgba(34,211,238,0.1); border-radius:12px; margin:12px 0 24px; letter-spacing:1px; font-family:'Plus Jakarta Sans',sans-serif;" id="tampilPO"></div>
+        <a id="linkBayar" href="#" class="popup-tombol-bayar">💳 Lanjutkan Pembayaran</a>
+        <button type="button" class="popup-tombol-tutup" id="btnTutupPopup">Tutup</button>
+    </div>
+</div>
+
+<div class="popup-latar" id="popupCekStatus">
+    <div class="popup-kotak">
+        <h3>🔍 Cek Status Pesanan</h3>
+        <p>Silakan masukkan Nomor PO atau Nomor HP Anda</p>
+        <input type="text" id="inputCekNomor" placeholder="Contoh: PO-150826-001 atau 081234567890">
+        <button type="button" id="btnPeriksa">🔍 Periksa</button>
+        <div class="popup-hasil" id="hasilPencarian"></div>
+        <button type="button" class="popup-tombol-tutup" id="btnTutupCek">Tutup</button>
+    </div>
+</div>
+
+<script>
+const URL_WEB_APP = "https://script.google.com/macros/s/AKfycbw9acgKvkymAbkhEdWdo9uKHT1WGdlP8kW1-pisKL-0-aDcjgtHJt2X2byT16oCPEE/exec";
+
+// ✅ GANTI LINK INI DENGAN ALAMAT HALAMAN PEMBAYARANMU
+const LINK_HALAMAN_BAYAR = "https://GANTI-DENGAN-LINK-PEMBAYARANMU.COM";
+
+const form = document.getElementById("formPO");
+const btnKirim = document.getElementById("btnKirim");
+const jumlahPilih = document.getElementById("jumlahPilih");
+const tampilKuota = document.getElementById("tampilKuota");
+const notifError = document.getElementById("notifError");
+const linkBayar = document.getElementById("linkBayar");
+
+const popupCekStatus = document.getElementById("popupCekStatus");
+const btnBukaPopupCek = document.getElementById("btnBukaPopupCek");
+const inputCekNomor = document.getElementById("inputCekNomor");
+const btnPeriksa = document.getElementById("btnPeriksa");
+const hasilPencarian = document.getElementById("hasilPencarian");
+const btnTutupCek = document.getElementById("btnTutupCek");
+
+const popupBerhasil = document.getElementById("popupBerhasil");
+const tampilPO = document.getElementById("tampilPO");
+const btnTutupPopup = document.getElementById("btnTutupPopup");
+
+async function muatKuota() {
+    try {
+        const res = await fetch(URL_WEB_APP + "?kuota=cek");
+        const data = await res.json();
+        tampilKuota.textContent = data.sisa || "?";
+    } catch (err) {
+        tampilKuota.textContent = "200";
+    }
+}
+
+document.querySelectorAll('.qty-btn').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+        jumlahPilih.value = this.dataset.qty;
+    });
+});
+document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
+
+btnBukaPopupCek.addEventListener('click', function() {
+    popupCekStatus.style.display = "flex";
+    inputCekNomor.value = "";
+    hasilPencarian.style.display = "none";
+});
+
+btnTutupCek.addEventListener('click', function() {
+    popupCekStatus.style.display = "none";
+    inputCekNomor.value = "";
+    hasilPencarian.style.display = "none";
+});
+
+btnTutupPopup.addEventListener('click', function(){
+    popupBerhasil.style.display = "none";
+    form.reset();
+    notifError.style.display = "none";
+    document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
+    document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
+    jumlahPilih.value = "1";
+    muatKuota();
+});
+
+btnPeriksa.addEventListener('click', async function() {
+    const kataKunci = inputCekNomor.value.trim();
+    if (!kataKunci) {
+        alert("Masukkan Nomor PO atau Nomor HP dulu!");
+        return;
+    }
+
+    btnPeriksa.textContent = "⏳ Mencari...";
+    btnPeriksa.disabled = true;
+    hasilPencarian.style.display = "none";
+
+    try {
+        const param = new URLSearchParams({ cek: kataKunci });
+        const res = await fetch(URL_WEB_APP + "?" + param, { method: "GET" });
+        const data = await res.json();
+
+        if (data.ditemukan) {
+            let kelasStatus = "";
+            if (data.status === "Belum Bayar") kelasStatus = "status-belum";
+            else if (data.status === "Lunas") kelasStatus = "status-lunas";
+            else if (data.status === "Dalam Pengiriman") kelasStatus = "status-kirim";
+
+            hasilPencarian.innerHTML = `
+                <p><strong>Nomor PO:</strong> ${data.no_po || '-'}</p>
+                <p><strong>Nama:</strong> ${data.nama || '-'}</p>
+                <p><strong>Jumlah:</strong> ${data.jumlah || '-'} PCS</p>
+                <p><strong>Status:</strong> <span class="${kelasStatus}">${data.status || 'Belum Bayar'}</span></p>
+            `;
+            hasilPencarian.style.display = "block";
+        } else {
+            hasilPencarian.innerHTML = `<p style="color:#fca5a5;">❌ Pesanan tidak ditemukan.<br>Cek kembali Nomor PO / HP Anda.</p>`;
+            hasilPencarian.style.display = "block";
+        }
+
+    } catch (err) {
+        hasilPencarian.innerHTML = `<p style="color:#fca5a5;">⚠️ Sistem sedang diperbarui. Coba lagi nanti.</p>`;
+        hasilPencarian.style.display = "block";
+        console.error(err);
+    }
+
+    btnPeriksa.textContent = "🔍 Periksa";
+    btnPeriksa.disabled = false;
+});
+
+form.addEventListener("submit", async function(e) {
+    e.preventDefault();
+    btnKirim.disabled = true;
+    btnKirim.textContent = "⏳ Mengirim...";
+    notifError.style.display = "none";
+
+    try {
+        const formData = new FormData(form);
+        const res = await fetch(URL_WEB_APP, {
+            method: "POST",
+            body: formData
+        });
+
+        const hasil = await res.json();
+
+        if (hasil.status === "BERHASIL") {
+            tampilPO.textContent = hasil.no_po;
+            // ✅ Bawa Nomor PO otomatis ke halaman Pembayaran
+            linkBayar.href = LINK_HALAMAN_BAYAR + "?noPO=" + encodeURIComponent(hasil.no_po);
+            popupBerhasil.style.display = "flex";
+            form.reset();
+            notifError.style.display = "none";
+            document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
+            document.querySelector('.qty-btn[data-qty="1"]').classList.add('active');
+            jumlahPilih.value = "1";
+            if (hasil.sisa_kuota !== undefined) {
+                tampilKuota.textContent = hasil.sisa_kuota;
+            }
+        } else {
+            const pesan = hasil.pesan || "❌ Gagal dikirim! Coba lagi.";
+            notifError.textContent = pesan;
+            notifError.style.display = "block";
+        }
+
+    } catch (err) {
+        notifError.textContent = "❌ Gagal terhubung! Coba lagi.";
+        notifError.style.display = "block";
+        console.error(err);
+    }
+
+    btnKirim.disabled = false;
+    btnKirim.textContent = "✅ Kirim Pesanan";
+});
+
+muatKuota();
+</script>
+
+</body>
+</html>
