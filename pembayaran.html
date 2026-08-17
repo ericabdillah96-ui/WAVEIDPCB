@@ -384,22 +384,24 @@
 </div>
 
 <script>
-// ✅ BACA NOMOR PO OTOMATIS DARI LINK URL
+// ✅ BACA SEMUA DATA DARI LINK URL
 const urlParams = new URLSearchParams(window.location.search);
 const noPO = urlParams.get('noPO') || '';
+const nama = urlParams.get('nama') || '';     // ✅ Baca Nama
+const tanggal = urlParams.get('tanggal') || ''; // ✅ Baca Tanggal
 
 if (noPO) {
     // ✅ Tampilkan Nomor PO di halaman
     document.getElementById('teksPO').textContent = noPO;
     document.getElementById('kotakPO').style.display = 'block';
 
-    // ✅ MASUKKAN NOMOR PO OTOMATIS KE PESAN WHATSAPP
+    // ✅ MASUKIN SEMUA DATA OTOMATIS KE PESAN WHATSAPP
     const pesan = encodeURIComponent(
 `Halo, saya sudah melakukan pembayaran untuk PO PCB.
 
 📌 Nomor PO: ${noPO}
-👤 Nama: 
-📅 Tanggal Transfer: 
+👤 Nama: ${nama}
+📅 Tanggal Transfer: ${tanggal}
 
 ✅ Silakan kirim BUKTI TRANSFER pembayaran Anda disini ya terima kasih!`
     );
