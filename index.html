@@ -417,14 +417,6 @@
             box-shadow: 0 0 25px rgba(52, 211, 153, 0.5);
         }
 
-        .popup-tombol-bayar:disabled {
-            background: linear-gradient(135deg, #4a4a6a, #5a5a7a);
-            cursor: not-allowed;
-            transform: none;
-            box-shadow: none;
-            opacity: 0.7;
-        }
-
         .popup-tombol-tutup {
             background: transparent;
             border: 1px solid var(--text-light);
@@ -583,22 +575,17 @@ cekSetuju.addEventListener("change", function() {
     btnKirim.disabled = !this.checked;
 });
 
-// ✅ FUNGSI SALIN NOMOR PO - DIPERBAIKI
+// ✅ FUNGSI SALIN NOMOR PO
 btnSalinPO.addEventListener("click", async function() {
     const teksPO = tampilPO.textContent.trim();
     if (!teksPO) { alert("Nomor PO belum tersedia!"); return; }
 
     let berhasil = false;
-
-    // Cara 1: Pakai Clipboard API
     try {
         await navigator.clipboard.writeText(teksPO);
         berhasil = true;
-    } catch (err) {
-        console.log("Clipboard API gagal, pakai cara alternatif");
-    }
+    } catch (err) {}
 
-    // Cara 2: Alternatif kalau cara 1 gagal
     if (!berhasil) {
         try {
             const inputSementara = document.createElement("textarea");
@@ -610,12 +597,9 @@ btnSalinPO.addEventListener("click", async function() {
             document.execCommand("copy");
             document.body.removeChild(inputSementara);
             berhasil = true;
-        } catch (err2) {
-            console.log("Salin otomatis gagal, minta salin manual");
-        }
+        } catch (err2) {}
     }
 
-    // Tampilkan hasil
     if (berhasil) {
         btnSalinPO.textContent = "✅ Berhasil Disalin!";
         btnSalinPO.classList.add("sukses");
@@ -628,9 +612,22 @@ btnSalinPO.addEventListener("click", async function() {
     }
 });
 
+// ✅ BAGIAN INI SUDAH DIPERBAIKI — KIRIM PO + NAMA + TANGGAL
 btnLanjutBayar.addEventListener("click", function() {
     if (!dataSementara.no_po) return;
-    window.location.href = LINK_HALAMAN_BAYAR + "?noPO=" + encodeURIComponent(dataSementara.no_po);
+    
+    // Buat tanggal hari ini: DD/MM/YYYY
+    const hariIni = new Date();
+    const tgl = hariIni.getDate();
+    const bln = hariIni.getMonth() + 1;
+    const thn = hariIni.getFullYear();
+    const tanggal = `${tgl}/${bln}/${thn}`;
+
+    // Kirim SEMUA data ke halaman pembayaran ✅
+    window.location.href = LINK_HALAMAN_BAYAR + 
+        "?noPO=" + encodeURIComponent(dataSementara.no_po) +
+        "&nama=" + encodeURIComponent(dataSementara.nama) +
+        "&tanggal=" + encodeURIComponent(tanggal);
 });
 
 async function muatKuota() {
@@ -639,7 +636,7 @@ async function muatKuota() {
         const data = await res.json();
         tampilKuota.textContent = data.sisa || "?";
     } catch (err) {
-        tampilKuota.textContent = "200";
+        tampilKuota.textContent = "300";
     }
 }
 
@@ -703,7 +700,7 @@ btnPeriksa.addEventListener('click', async function() {
                     <p>⏰ <strong>Dibuat:</strong> ${data.waktu_dibuat || '-'}</p>
                     <p>⌛ <strong>Sisa waktu bayar:</strong> ${data.sisa_waktu}</p>
                     <div class="peringatan-waktu">
-                        ⚠️ Lewat ${data.batas_jam || 12} jam belum bayar → pesanan otomatis dihapus!
+                        ⚠️ Lewat ${data.batas_jam || 24} jam belum bayar → pesanan otomatis dihapus!
                     </div>
                 `;
             }
@@ -716,7 +713,7 @@ btnPeriksa.addEventListener('click', async function() {
                 ${bagianWaktu}
                 <div style="margin-top:14px; padding-top:12px; border-top:1px dashed rgba(157,78,221,0.3);">
                     <p style="font-size:13px; color:#94a3b8; margin-bottom:8px;">Lanjutkan pembayaran di sini 👇</p>
-                    <a href="pembayaran.html?noPO=${encodeURIComponent(data.no_po || '')}" style="display:block; text-align:center; padding:10px; background:linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color:#fff; border-radius:10px; text-decoration:none; font-weight:600; font-size:14px;">💳 Lanjut Bayar</a>
+                    <a href="pembayaran.html?noPO=${encodeURIComponent(data.no_po || '')}&nama=${encodeURIComponent(data.nama || '')}" style="display:block; text-align:center; padding:10px; background:linear-gradient(135deg, #f59e0b 0%, #fbbf24 100%); color:#fff; border-radius:10px; text-decoration:none; font-weight:600; font-size:14px;">💳 Lanjut Bayar</a>
                 </div>`;
             hasilPencarian.style.display = "block";
         } else {
@@ -731,7 +728,7 @@ btnPeriksa.addEventListener('click', async function() {
     btnPeriksa.disabled = false;
 });
 
-// ✅ KLIK KIRIM → KIRIM KE SERVER → DAPAT NOMOR PO DARI SERVER
+// ✅ KIRIM DATA KE SERVER → DAPAT NOMOR PO
 form.addEventListener("submit", async function(e) {
     e.preventDefault();
     btnKirim.disabled = true;
@@ -753,7 +750,6 @@ form.addEventListener("submit", async function(e) {
     }
 
     try {
-        // ✅ KIRIM DATA KE SERVER → SERVER YANG BUATKAN NOMOR PO
         const kirim = new FormData();
         kirim.append("nama", nama);
         kirim.append("hp", hp);
@@ -767,15 +763,12 @@ form.addEventListener("submit", async function(e) {
         const hasil = await res.json();
 
         if (hasil.status === "BERHASIL") {
-            // ✅ NOMOR PO DARI SERVER → PASTI SAMA DENGAN SHEET!
             const noPO = hasil.no_po;
             dataSementara = { nama, hp, alamat, jumlah, no_po: noPO };
 
-            // ✅ TAMPILKAN KE PEMBELI
             tampilPO.textContent = noPO;
             popupBerhasil.style.display = "flex";
 
-            // Reset form
             form.reset();
             cekSetuju.checked = false;
             document.querySelectorAll('.qty-btn').forEach(b => b.classList.remove('active'));
