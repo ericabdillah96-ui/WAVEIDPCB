@@ -199,6 +199,48 @@
             color: #fff;
         }
 
+        /* === PILIHAN EKSPEDISI TOMBOL === */
+        .ekspedisi-box {
+            margin: 16px 0;
+        }
+
+        .ekspedisi-box label {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--text-main);
+            display: block;
+            margin-bottom: 10px;
+        }
+
+        .tombol-ekspedisi {
+            display: flex;
+            gap: 10px;
+        }
+
+        .tombol-ekspedisi button {
+            flex: 1;
+            padding: 12px;
+            font-size: 15px;
+            font-weight: 600;
+            border-radius: 10px;
+            border: 2px solid rgba(157, 78, 221, 0.3);
+            background: rgba(15, 20, 40, 0.8);
+            color: #c7d2fe;
+            cursor: pointer;
+            transition: all 0.25s ease;
+        }
+
+        .tombol-ekspedisi button.aktif {
+            border-color: var(--accent);
+            background: var(--accent-gradient);
+            color: #fff;
+            box-shadow: 0 0 14px var(--glow-ungu);
+        }
+
+        .tombol-ekspedisi button:hover {
+            border-color: var(--accent);
+        }
+
         .tombol-wa {
             display: block;
             text-align: center;
@@ -213,6 +255,8 @@
             margin-top: auto;
             box-shadow: 0 0 18px var(--wa-glow);
             transition: all 0.3s ease;
+            border: none;
+            cursor: pointer;
         }
 
         .tombol-wa:hover {
@@ -318,10 +362,11 @@
                 <li><span>1</span>Isi formulir pemesanan</li>
                 <li><span>2</span>Dapatkan Nomor PO</li>
                 <li><span>3</span>Bayar sesuai nominal</li>
-                <li><span>4</span>Konfirmasi via WhatsApp</li>
-                <li><span>5</span>Tunggu status diperbarui</li>
-                <li><span>6</span>Setelah barang kami terima</li>
-                <li><span>7</span>Barang akan dikirim / diproses</li>
+                <li><span>4</span>Pilih Ekspedisi Pengiriman</li>
+                <li><span>5</span>Konfirmasi via WhatsApp</li>
+                <li><span>6</span>Tunggu status diperbarui</li>
+                <li><span>7</span>Setelah barang kami terima</li>
+                <li><span>8</span>Barang akan dikirim / diproses</li>
             </ul>
         </div>
 
@@ -348,11 +393,21 @@
                     <label>Jumlah Bayar</label>
                     <div class="nilai">Rp. 40.000/PCS <span class="salin-btn" onclick="navigator.clipboard.writeText('Rp. 40.000')">salin</span></div>
                 </div>
+
+                <!-- === TOMBOL PILIH EKSPEDISI: JNE / J&T === -->
+                <div class="ekspedisi-box">
+                    <label>🚚 Pilih Ekspedisi Pengiriman</label>
+                    <div class="tombol-ekspedisi">
+                        <button type="button" id="btnJNE" onclick="pilihEkspedisi('JNE')">JNE</button>
+                        <button type="button" id="btnJT" onclick="pilihEkspedisi('J&T Express')">J&T</button>
+                    </div>
+                    <input type="hidden" id="ekspedisiTerpilih" value="">
+                </div>
             </div>
 
-            <a id="linkWA" href="#" target="_blank" class="tombol-wa">
+            <button id="tombolWA" class="tombol-wa" onclick="kirimKeWA()">
                 💬 Konfirmasi Pembayaran ke WhatsApp
-            </a>
+            </button>
         </div>
 
         <div class="kotak">
@@ -384,30 +439,53 @@
 </div>
 
 <script>
-// ✅ BACA SEMUA DATA DARI LINK URL
+// ✅ BACA NOMOR PO OTOMATIS DARI LINK URL
 const urlParams = new URLSearchParams(window.location.search);
 const noPO = urlParams.get('noPO') || '';
-const nama = urlParams.get('nama') || '';     // ✅ Baca Nama
-const tanggal = urlParams.get('tanggal') || ''; // ✅ Baca Tanggal
 
 if (noPO) {
-    // ✅ Tampilkan Nomor PO di halaman
     document.getElementById('teksPO').textContent = noPO;
     document.getElementById('kotakPO').style.display = 'block';
+}
 
-    // ✅ MASUKIN SEMUA DATA OTOMATIS KE PESAN WHATSAPP
+let ekspedisiDipilih = '';
+
+// ✅ PILIH EKSPEDISI DENGAN TOMBOL
+function pilihEkspedisi(nama) {
+    ekspedisiDipilih = nama;
+    document.getElementById('ekspedisiTerpilih').value = nama;
+
+    // Hapus tanda aktif semua tombol
+    document.getElementById('btnJNE').classList.remove('aktif');
+    document.getElementById('btnJT').classList.remove('aktif');
+
+    // Kasih tanda aktif ke tombol yang dipilih
+    if (nama === 'JNE') {
+        document.getElementById('btnJNE').classList.add('aktif');
+    } else {
+        document.getElementById('btnJT').classList.add('aktif');
+    }
+}
+
+// ✅ KIRIM KE WA DENGAN EKSPEDISI TERPILIH
+function kirimKeWA() {
+    if (!ekspedisiDipilih) {
+        alert('⚠️ Silakan pilih ekspedisi dulu ya!');
+        return;
+    }
+
     const pesan = encodeURIComponent(
 `Halo, saya sudah melakukan pembayaran untuk PO PCB.
 
 📌 Nomor PO: ${noPO}
-👤 Nama: ${nama}
-📅 Tanggal Transfer: ${tanggal}
+🚚 Ekspedisi: ${ekspedisiDipilih}
+👤 Nama: 
+📅 Tanggal Transfer: 
 
 ✅ Silakan kirim BUKTI TRANSFER pembayaran Anda disini ya terima kasih!`
     );
 
-    // ✅ Set link tombol WhatsApp
-    document.getElementById('linkWA').href = "https://wa.me/6281808793105?text=" + pesan;
+    window.open("https://wa.me/6281808793105?text=" + pesan, "_blank");
 }
 </script>
 
